@@ -8,21 +8,24 @@ namespace BlackHoleSim
 {
     public partial class Form1 : Form
     {
-        List<XP> xps = new List<XP>();
+        List<XP> particles = new List<XP>();
         Bitmap bmp;
-        float sx = 0;
-        float sy = 0;
+        float windowWidth = 0;
+        float windowHeight = 0;
+        //rs - Schwarzschild radius of a black hole
+        //dt - time step of numerical integration
+        //n - amount of time steps in one iteration
         static double rs = 25;
-        static double dt = 0.1;
-        static int nz = 20;
+        static double dt = 0.2;
+        static int n = 20;
         public Form1()
         {
             InitializeComponent();
             bmp = new Bitmap(Canvas.Width, Canvas.Height);
-            Random r = new Random();
+            Random random = new Random();
 
             /*
-            for (int i = 0; i < 2000; i++)
+            for (int _ = 0; _ < 2000; _++)
             {
                 XP xp = new XP(2);
                 xp.x[0] = 300;
@@ -33,82 +36,87 @@ namespace BlackHoleSim
                 xps.Add(xp);
             }
             */
-            for (var i = 0; i < 100; i++)
+            for (var _ = 0; _ < 100; _++)
                 {
                     XP xp = new XP(2);
-                    xp.x[0] = gaussianRandom(r) * 10 + 150;
-                    xp.x[1] = gaussianRandom(r) * 10;
-                    xp.p[0] = gaussianRandom(r) * 0.02;
-                    xp.p[1] = gaussianRandom(r) * 0.02 + 0.3;
+                    xp.x[0] = gaussianRandom(random) * 10 + 150;
+                    xp.x[1] = gaussianRandom(random) * 10;
+                    xp.p[0] = gaussianRandom(random) * 0.02;
+                    xp.p[1] = gaussianRandom(random) * 0.02 + 0.3;
                     xp.m = 1;
-                    xps.Add(xp);
+                    particles.Add(xp);
                 }
-            for (var i = 0; i < 100; i++)
+            for (var _ = 0; _ < 100; _++)
                 {
                     XP xp = new XP(2);
-                    xp.x[0] = gaussianRandom(r) * 10 + 100;
-                    xp.x[1] = gaussianRandom(r) * 10;
-                    xp.p[0] = gaussianRandom(r) * 0.02;
-                    xp.p[1] = gaussianRandom(r) * 0.02 + 0.3;
+                    xp.x[0] = gaussianRandom(random) * 10 + 100;
+                    xp.x[1] = gaussianRandom(random) * 10;
+                    xp.p[0] = gaussianRandom(random) * 0.02;
+                    xp.p[1] = gaussianRandom(random) * 0.02 + 0.3;
                     xp.m = 1;
-                    xps.Add(xp);
+                    particles.Add(xp);
                 }
-            for (var i = 0; i < 100; i++)
+            for (var _ = 0; _ < 100; _++)
                 {
                     XP xp = new XP(2);
-                    xp.x[0] = gaussianRandom(r) * 10 + 400;
-                    xp.x[1] = gaussianRandom(r) * 10 - 100;
-                    xp.p[0] = gaussianRandom(r) * 0.04 - 0.5;
-                    xp.p[1] = gaussianRandom(r) * 0.04;
+                    xp.x[0] = gaussianRandom(random) * 10 + 400;
+                    xp.x[1] = gaussianRandom(random) * 10 - 100;
+                    xp.p[0] = gaussianRandom(random) * 0.04 - 0.5;
+                    xp.p[1] = gaussianRandom(random) * 0.04;
                     xp.m = 1;
-                    xps.Add(xp);
+                    particles.Add(xp);
                 }
-            for (var i = 0; i < 100; i++)
+            for (var _ = 0; _ < 100; _++)
                 {
                     XP xp = new XP(2);
-                    xp.x[0] = gaussianRandom(r) * 10 + 250;
-                    xp.x[1] = gaussianRandom(r) * 10;
-                    xp.p[0] = gaussianRandom(r) * 0.04;
-                    xp.p[1] = gaussianRandom(r) * 0.04;
+                    xp.x[0] = gaussianRandom(random) * 10 + 250;
+                    xp.x[1] = gaussianRandom(random) * 10;
+                    xp.p[0] = gaussianRandom(random) * 0.04;
+                    xp.p[1] = gaussianRandom(random) * 0.04;
                     xp.m = 1;
-                    xps.Add(xp);
+                    particles.Add(xp);
                 }
             }
+        //rendering particles and event horizon in the window
         private void Canvas_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = Graphics.FromImage(bmp);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            if (sx != Canvas.Width || sy != Canvas.Height)
+            if (windowWidth != Canvas.Width || windowHeight != Canvas.Height)
             {
                 bmp = new Bitmap(Canvas.Width, Canvas.Height);
-                sx = Canvas.Width;
-                sy = Canvas.Height;
+                windowWidth = Canvas.Width;
+                windowHeight = Canvas.Height;
                 g = Graphics.FromImage(bmp);
                 g.Clear(Color.Black);
             }
-            g.FillRectangle(new SolidBrush(Color.FromArgb(20, Color.Black)),0,0,sx,sy);
-            g.DrawArc(new Pen(Color.White, 2), (float)(sx / 2 - rs), (float)(sy / 2 - rs), (float)(2 * rs), (float)(2 * rs), 0, 360);
+            g.FillRectangle(new SolidBrush(Color.FromArgb(20, Color.Black)),0,0,windowWidth,windowHeight);
+            g.DrawArc(new Pen(Color.White, 2), (float)(windowWidth / 2 - rs), (float)(windowHeight / 2 - rs), (float)(2 * rs), (float)(2 * rs), 0, 360);
             float r = 2;
-            foreach(XP xp in xps)
-                g.FillEllipse(xp.m == 0 ? Brushes.Yellow: Brushes.White, (float)(sx / 2 + xp.x[0] - r), (float)(sy / 2 - xp.x[1] - r), 2 * r, 2 * r);
+            foreach(XP xp in particles)
+                g.FillEllipse(xp.m == 0 ? Brushes.Yellow: Brushes.White, (float)(windowWidth / 2 + xp.x[0] - r), (float)(windowHeight / 2 - xp.x[1] - r), 2 * r, 2 * r);
             e.Graphics.DrawImage(bmp, 0, 0);
         }
         private void timer_Tick(object sender, EventArgs e)
         {
-            Parallel.ForEach(xps, xp =>
+            Parallel.ForEach(particles, xp =>
             {
                 XP xp1 = new XP(2);
-                for (int z = 0; z < nz; z++)
+                //Positions and momenta of the particles are updated according to Hamilton's equations to the second order of accuracy.
+                for (int _ = 0; _ < n; _++)
                 {
                     xp1.x[0] = xp.x[0] + XP.dtx(0, H).Value(xp) * dt + XP.d2tx(0, H).Value(xp) * dt * dt / 2;
                     xp1.x[1] = xp.x[1] + XP.dtx(1, H).Value(xp) * dt + XP.d2tx(1, H).Value(xp) * dt * dt / 2;
-                    xp1.p[0] = xp.p[0] + XP.dtp(0, H).Value(xp) * dt + XP.d2tp(0, H).Value(xp) * dt * dt / 2;
-                    xp1.p[1] = xp.p[1] + XP.dtp(1, H).Value(xp) * dt + XP.d2tp(1, H).Value(xp) * dt * dt / 2;
                     xp.x[0] = xp1.x[0];
                     xp.x[1] = xp1.x[1];
+                    xp1.p[0] = xp.p[0] + XP.dtp(0, H).Value(xp) * dt + XP.d2tp(0, H).Value(xp) * dt * dt / 2;
+                    xp1.p[1] = xp.p[1] + XP.dtp(1, H).Value(xp) * dt + XP.d2tp(1, H).Value(xp) * dt * dt / 2;
                     xp.p[0] = xp1.p[0];
                     xp.p[1] = xp1.p[1];
                 }
+                //staying near the event horizon for too long causes the particle's momentum to increase too much,
+                //leading to numerical instabilities and non-physical predictions,
+                //so the particle is effectively removed from the simulation when it gets close enough to the event horizon
                 if (r(xp.x[0], xp.x[1]) <= rs + 1)
                     xp.m = double.NaN;
             });
@@ -116,6 +124,8 @@ namespace BlackHoleSim
         }
 
         Observable H = new Observable(new Observable.function(xp => Hf(xp)));
+        //Hamiltonian function, which is equal to the time component of the 4-momentum of the particle,
+        //derived from the length of the 4-momentum in a given metric
         static double Hf(XP xp1)
         {
             double x = xp1.x[0];
@@ -129,10 +139,12 @@ namespace BlackHoleSim
             var k3 = g.xx * xp * xp + g.yy * yp * yp + 2 * g.xy * xp * yp - m * m;
             return (-k2 + Math.Sqrt(k2 * k2 - 4 * k1 * k3)) / (2 * k1);
         }
+        //distance from the coordinate origin
         static double r(double x, double y)
         {
             return Math.Sqrt(x * x + y * y);
         }
+        //Schwarzschild metric tensor in cartesian coordinates (t,x,y), derived from polar coordinates
         static (double tt, double xx, double yy, double tx, double ty, double xy) g_cartesian(double x, double y)
         {
             double a = x * x;
@@ -149,6 +161,7 @@ namespace BlackHoleSim
                 xy: (g.rr - g.ff) * x * y / c
                 );
         }
+        //Schwarzschild metric tensor in polar coordinates (t,r,f), where f basis vector is normalized
         static (double tt, double rr, double ff, double tf) g_polar(double r)
         {
             return (
@@ -158,7 +171,6 @@ namespace BlackHoleSim
                 tf: 0d
                 );
         }
-
         static double gaussianRandom(Random r, double mean = 0, double stdev = 1)
         {
             double u = 1.0 - r.NextDouble();

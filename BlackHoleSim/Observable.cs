@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-
-namespace BlackHoleSim
+﻿namespace BlackHoleSim
 {
+    //In Hamiltonian mechanics all physical quantities are represented as functions of coordinates and momenta,
+    //this class helps to work with functions as physical quantities and perform operations on them 
     internal class Observable
     {
         public delegate double function(XP xp);
@@ -45,10 +39,12 @@ namespace BlackHoleSim
         {
             return new Observable(new function(xp => A.F(xp) / B.F(xp)));
         }
+        //returns the approximate partial derivative of a physical quantity with respect to x-nth
         public Observable dx(int n)
         {
             return new Observable(new function(xp => (F(xp.xd(n, d)) - F(xp.xd(n, -d))) / (2 * d)));
         }
+        //returns the approximate partial derivative of a physical quantity with respect to p-nth
         public Observable dp(int n)
         {
             return new Observable(new function(xp => (F(xp.pd(n, d)) - F(xp.pd(n, -d))) / (2 * d)));
@@ -57,6 +53,7 @@ namespace BlackHoleSim
         {
             return A.dp(n) * B.dx(n) - A.dx(n) * B.dp(n);
         }
+        //Evaluation of Poisson bracket of two physical quantities A and B
         public static Observable Commutator(Observable A, Observable B, int n)
         {
             Observable C = 0;

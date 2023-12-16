@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static BlackHoleSim.Observable;
+﻿using static BlackHoleSim.Observable;
 
 namespace BlackHoleSim
 {
+    //This class contains information about particle's position, momentum and mass
     internal class XP
     {
         public double[] x;
@@ -30,18 +25,22 @@ namespace BlackHoleSim
             p[n] += d;
             return this;
         }
+        //time derivative of x-nth according to Hamilton's equations
         public static Observable dtx(int n, Observable H)
         {
             return H.dp(n);
         }
+        //time derivative of p-nth according to Hamilton's equations
         public static Observable dtp(int n, Observable H)
         {
             return -H.dx(n);
         }
+        //second time derivative of x-nth according to Hamilton's equations
         public static Observable d2tx(int n, Observable H)
         {
             return Commutator(H, dtx(n, H), n);
         }
+        //second time derivative of p-nth according to Hamilton's equations
         public static Observable d2tp(int n, Observable H)
         {
             return Commutator(H, dtx(n, H), n);
